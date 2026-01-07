@@ -1,50 +1,54 @@
+const taskController = require('../controllers/task.controller');
+const { get } = require('./category.router');
+
 const taskRouter = require('express').Router();
 
-taskRouter.get('/', (req, res) => {
-    res.send({ message : 'Voici toutes nos tasks'}, 200);
-})
 
-taskRouter.get('/:id', (req, res) => {
-    const id = req.params.id;
-    res.send(`Voici la tâche numero ${id}`)
-})
+taskRouter.route('/')
+    .get(taskController.getAll)
+    .post(taskController.insert)
 
-taskRouter.get('/user/:id', (req, res) => {
-    const user = req.params.id;
-    res.send(`Voici l'utilisateur ${user}`)
-})
-
-
-taskRouter.post('/', (req, res) => {
-    const taskToInsert = req.body;
-    res.send(taskToInsert, 201)
-
-    //?CODE 201 c'est created
-})
-
-taskRouter.put('/:id', (req, res) => {
-    const taskId = req.params.id;
-    const taskUpdated = req.body;
-    taskUpdated.id = taskId;
-
-    res.send( taskUpdated, 200)
-
-
-    //? Pour une modification on renvoie que c'est ok
-})
-
-taskRouter.patch('/:id', (req, res) => {
-    const id = req.params.id;
-    const newStatus = req.body.isDone;
+taskRouter.route('/:id')
+    .get(taskController.getById)
+    .put(taskController.update)
+    .patch(taskController.updateStatus)
+    .delete(taskController.delete)
     
+taskRouter.get('/user/:name', taskController.getByUser)
 
-    res.send( { id , isDone : newStatus } , 200)
-})
+    
+    
+    
+    //! Ce qu'il reste de l'ancienne structure des routes
+    
+    
+// taskRouter.get('/user/:id', (req, res) => {
+//     const user = req.params.id;
+//     res.send(`Voici l'utilisateur ${user}`)
+// })
 
-taskRouter.delete('/:id', (req, res) => {
-    res.sendStatus(204);
+// taskRouter.get('/', (req, res) => {
+    
+// })
 
-    //? Succès et rien à renvoyer
-})
+// taskRouter.get('/:id', (req, res) => {
+    
+// })
+
+// taskRouter.post('/', (req, res) => {
+    
+// })
+
+// taskRouter.put('/:id', (req, res) => {
+    
+// })
+
+// taskRouter.patch('/:id', (req, res) => {
+    
+// })
+
+// taskRouter.delete('/:id', (req, res) => {
+    
+// })
 
 module.exports = taskRouter;
