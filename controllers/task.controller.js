@@ -64,7 +64,12 @@ const taskController = {
      */
 
     insert : (req, res) => {
-        res.sendStatus(501)
+        const taskToAdd = req.body;
+        const addedTask =  fakeTaskService.create(taskToAdd);
+
+        res.location(`/api/task/${addedTask.id}`);
+        res.status(201).json(addedTask);
+        
 
     },
 
