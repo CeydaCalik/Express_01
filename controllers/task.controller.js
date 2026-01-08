@@ -53,7 +53,11 @@ const taskController = {
      */
 
     getByUser : (req, res) => {
-        res.sendStatus(501)
+        const user = req.params.name; //recup le nom qu'il a dans le lien de la route /:name
+        const tasks = fakeTaskService.findUser(user);//interagie avec le service
+
+      
+        res.status(200).json(tasks);//renvoie la réponse obtenue par celui-ci
 
     },
 
@@ -80,8 +84,22 @@ const taskController = {
      */
 
     update : (req, res) => {
-        res.sendStatus(501)
-        
+
+        const id = +req.params.id;
+        const newName = req.body.name;
+        const newCategory = req.body.category;
+        const newMaster = req.body.by;
+        const newSlave = req.body.to;
+        const newDate = req.body.before;
+
+        const task = fakeTaskService.findById(id); 
+        if(!task){
+            res.status(404).json({statusCode : 404, message : "Cette tâche n'existe pas"})
+        }
+
+        const taskUpdated = fakeTaskService.changeStatus(id, newName, newCategory, newMaster, newSlave, newDate);
+
+        res.status(200).json(taskUpdated); 
     },
 
      /**
@@ -91,7 +109,19 @@ const taskController = {
      */
 
     updateStatus : (req, res) => {
-        res.sendStatus(501)
+        const id = +req.params.id; //le "+" transforme en parseInt()
+        const newStatus = req.body.isDone;
+        
+        const task = fakeTaskService.findById(id); 
+        if(!task){
+            res.status(404).json({statusCode : 404, message : "Cette tâche n'existe pas"})
+        }
+
+        const taskUpdated = fakeTaskService.changeStatus(id, newStatus);
+
+       
+        res.status(200).json(taskUpdated);
+
 
     },
 
