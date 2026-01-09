@@ -2,19 +2,23 @@ const { tasks } = require("./fakeDb");
 
 const fakeTaskService = {
 
-    find : () => {
+    find : () => { //getAll
         return tasks;
     },
 
-    findById : (id) => {
+    findById : (id) => { //getById
         return tasks.find(task => task.id === id);
     },
 
-    findUser : (user) => {
+    findUser : (user) => { //getByUser
         return tasks.filter(task => task.to === user);  
     },
 
-    create : (taskToAdd) => {
+    // findGivenBy : (userName) => {
+    //     return tasks.filter(task => task.by === userName):
+    // },
+
+    create : (taskToAdd) => { //insert
         const idMax = Math.max( ... tasks.map(task => task.id) );
 
         taskToAdd.id = idMax + 1;
@@ -25,25 +29,36 @@ const fakeTaskService = {
         return taskToAdd;
     },
 
-    changeStatus : (id, newStatus) => {
+    changeStatus : (id, newStatus) => { //updateStatus
         const taskToUpdate = tasks.find(task => task.id === id);
+        
         taskToUpdate.isDone = newStatus;
 
         return taskToUpdate;
     },
 
-    changeTask : (id, newName, newCategory, newMaster, newSlave, newDate) => {
+    changeTask : (id, task) => { //update
         const taskToUpdate = tasks.find(task => task.id === id);
-        const nameUpdate = tasks.find(task => task.name === newName);
-        const categoryUpdate = tasks.find(task => task.category === newCategory);
-        const masterUpdate = tasks.find(task => task.by === newMaster);
-        const slaveUpdate = tasks.find(task => task.to === newSlave);
-        const dateUpdate = tasks.find(task => task.before === newDate);
+        taskToUpdate.name = task.name;
+        taskToUpdate.category = task.category;
+        taskToUpdate.before = task.before;
+        taskToUpdate.by = task.by;
+        taskToUpdate.to = task.to;
 
-        return taskToUpdate, nameUpdate, categoryUpdate, masterUpdate, slaveUpdate, dateUpdate;
-
+        return taskToUpdate;
 
     },
+
+    delete : (id) => {
+        const index = tasks.findIndex(task => task.id === id);
+        
+        if(index === -1){
+            return false;
+        }
+        tasks.splice(index, 1);
+        return true;
+        
+    }
 
 
 
