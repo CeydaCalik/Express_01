@@ -9,16 +9,24 @@ const nameValidatorMiddleware = () => {
         const name = req.body.name.toLocaleLowerCase();
         let motOffensant = ['trump', 'elon', 'musk'];
 
-        for (let i = 0; i < motOffensant.length; i++) {
-            
-            if(name.includes(motOffensant[i])){
-                res.status(400).json( {statusCode : 400, message : "Vous avez employé un mot offenssant"} )
 
-            }else {
-                next();
-            }
+        if( motOffensant.some(mot => name.includes(mot))) {
+            res.status(400).json( {statusCode : 400, message : "Vous avez employé un mot offenssant"}, 400 )
+
+        } else {
+            next();
+        }
+
+        // for (let i = 0; i < motOffensant.length; i++) {
+        //     console.log(motOffensant[i]);
             
-        }  
+        //     if(name.includes(motOffensant[i])){
+
+        //     }else {
+        //         next();
+        //     }
+            
+        // }  
 
     }
 }
