@@ -1,4 +1,6 @@
 const categoryController = require('../controllers/category.controller');
+const bodyValidatorMiddleware = require('../middlewares/bodyValidator.middleware');
+const idValidatorMiddleware = require('../middlewares/idValidator.middleware');
 const { get } = require('./category.router');
 
 const categoryRouter = require('express').Router();
@@ -6,12 +8,12 @@ const categoryRouter = require('express').Router();
 
 categoryRouter.route('/')
     .get(categoryController.getAll)
-    .post(categoryController.insert)
+    .post(bodyValidatorMiddleware() ,categoryController.insert)
 
 categoryRouter.route('/:id')
-    .get(categoryController.getById)
-    .put(categoryController.update)
-    .delete(categoryController.delete)
+    .get( idValidatorMiddleware() ,categoryController.getById)
+    .put(idValidatorMiddleware(), bodyValidatorMiddleware(), categoryController.update)
+    .delete(idValidatorMiddleware(), categoryController.delete)
 
 // categoryRouter.get('/', (req, res) => {
 //     res.send({ message : 'Voici toutes les catégories'}, 200);
