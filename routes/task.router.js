@@ -1,5 +1,4 @@
 const taskController = require('../controllers/task.controller');
-const idValidatorMiddleware = require('../middlewares/idValidator.middleware');
 const bodyValidatorMiddleware = require('../middlewares/bodyValidator.middleware');
 const { get } = require('./category.router');
 
@@ -11,10 +10,10 @@ taskRouter.route('/')
     .post(bodyValidatorMiddleware() ,taskController.insert)
 
 taskRouter.route('/:id')
-    .get( idValidatorMiddleware()   , taskController.getById)
-    .put( idValidatorMiddleware(), bodyValidatorMiddleware() ,  taskController.update)
-    .delete( idValidatorMiddleware() ,  taskController.delete)
-    .patch( idValidatorMiddleware() , bodyValidatorMiddleware(), taskController.updateStatus)
+    .get(taskController.getById)
+    .put(bodyValidatorMiddleware() ,  taskController.update)
+    .delete(taskController.delete)
+    .patch(bodyValidatorMiddleware(), taskController.updateStatus)
     
 taskRouter.get('/user/:name', taskController.getByUser)
 

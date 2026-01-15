@@ -4,7 +4,7 @@ const {Request, Response} = require('express');
 
 const fakeCategoryService = require('../services/fake/fakeCategory.service');
 
-
+const categoryService = require('../mongo/category.service');
 
 
 const categoryController = {
@@ -17,8 +17,21 @@ const categoryController = {
      */
 
 
-    getAll : (req, res) => {
-        const categories = fakeCategoryService.find();
+    getAll : async(req, res) => {
+
+        try{
+            const categories = await categoryService.find();
+
+            res.status(200).json(categories);
+            
+        }
+        catch(err) {
+
+            console.log(err);
+            res.status(500).json({ statusCode : 500 , message : "Erreur avec la DB"})
+            
+        }
+
         const dataToSend = {
             count : categories.length,
             categories
@@ -32,10 +45,11 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    getById : (req, res) => {
-        const id = parseInt(req.params.id);
-        const category = fakeCategoryService.findById(id);
+    getById : async(req, res) => {
+        const id = req.params.id;
 
+        try{
+            const category = await categoryService.findById(id);
 
         if(!category){
             res.status(404).json({
@@ -44,6 +58,10 @@ const categoryController = {
         }
 
         res.status(200).json(category);
+    }catch(err) {
+        console.log(err);
+        throw new Error(err);
+    }
     },
 
 
@@ -53,14 +71,25 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    insert : (req, res) => {
+    insert : async (req, res) => {
         const categoryToAdd = req.body;
 
-        if(fakeCategoryService.alreadyExists(categoryToAdd.name)){
-            res.status(409).json({ statusCode : 409, message : 'La catégorie existe déjà' })
-        }
+        try {
 
+            const exists = await categoryService.alreadyExists(categoryToAdd.name);
+
+            if ( exists ) {
+                res.status(409).json({ statusCode: 409, message: 'La catégorie existe déjà' })
+            }
+
+        } catch (err) {
+            console.log(err);
+            throw new Error(err);    
+        }
+        
         const addedCategory = fakeCategoryService.create(categoryToAdd);
+
+        
 
         res.location(`/api/category/${addedCategory.id}`);
         res.status(201).json(addedCategory);
