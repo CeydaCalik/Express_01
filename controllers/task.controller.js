@@ -1,6 +1,11 @@
 const { Request, Response } = require('express')
-const { tasks } = require("../services/fake/fakeDb")
-const fakeTaskService = require("../services/fake/fakeTask.service")
+
+const fakeTaskService = require("../services/fake/fakeTask.service");
+
+const taskService = require('../mongo/task.service');
+const Task = require('../models/task.model');
+
+
 
 const taskController = {
 
@@ -10,40 +15,22 @@ const taskController = {
      * @param { Response } res 
      */
 
-    getAll: (req, res) => {
-        const tasks = fakeTaskService.find();
+    getAll: async (req, res) => {
+        try {
+            const tasks = await taskService.find();
+            const dataToSend = {
+                count: tasks.length,
+                tasks /*revient à écrire tasks : tasks*/
+            };
+            res.status(200).json(dataToSend);
 
-        //version 1
-        // res.status(200).json(tasks)
-        //res.status(json, 200)
+        } catch (err) {
 
-        //version 2
-        const dataToSend = {
-            count: tasks.length,
-            tasks /*revient à écrire tasks : tasks*/
-        };
-        res.status(200).json(dataToSend);
-
-    },
-
-    /**
-    * 
-    * @param { Request } req 
-    * @param { Response } res 
-    */
-
-    getById: (req, res) => {
-        const id = parseInt(req.params.id);
-        const task = fakeTaskService.findById(id);
-
-        if (!task) {
-            res.status(404).json({
-                statusCode: 404,
-                message: "Tâche non trouvée"
-            })
+            console.log(err);
+            res.status(500).json({ statusCode: 500, message: 'Erreur avec la DB' });
         }
 
-        res.status(200).json(task);
+
 
     },
 
@@ -53,13 +40,25 @@ const taskController = {
     * @param { Response } res 
     */
 
-    getByUser: (req, res) => {
-        const user = req.params.name; //recup le nom qu'il a dans le lien de la route /:name
-        const tasks = fakeTaskService.findUser(user);//interagie avec le service
+    getById: async (req, res) => {
+        const id = req.params.id;
+        try {
 
+            const task = await taskService.findById(id);
 
-        res.status(200).json(tasks);//renvoie la réponse obtenue par celui-ci
+            if (!task) {
+                res.status(404).json({
+                    statusCode: 404,
+                    message: "Tâche non trouvée"
+                })
+            }
 
+            res.status(200).json(task);
+
+        } catch (err) {
+            console.log(err);
+            throw new Error(err);
+        }
     },
 
     /**
@@ -68,14 +67,61 @@ const taskController = {
     * @param { Response } res 
     */
 
-    insert: (req, res) => {
+    getByUser: async (req, res) => {
+
+        try {
+            const userId = req.params.id; //recup l'id qu'il a dans le lien de la route /:id
+
+            const taskUserTo = await taskService.findByUserTo(userId);
+            const taskUserBy = await taskService.findByUserBy(userId);
+
+            const dataToSend = {
+                taskUserTo,
+                taskUserBy
+            };
+
+            res.status(200).json(dataToSend);
+
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ statusCode: 500, message: "Erreur dans la DB" });
+
+
+        }
+    },
+    /**
+    * 
+    * @param { Request } req 
+    * @param { Response } res 
+    */
+
+    insert: async (req, res) => {
+
         const taskToAdd = req.body;
-        const addedTask = fakeTaskService.create(taskToAdd);
 
-        res.location(`/api/task/${addedTask.id}`);
-        res.status(201).json(addedTask);
+        try {
+            const exists = await taskService.alreadyExists(taskToAdd.name);
+
+            if (exists) {
+                res.status(409).json({ statusCode: 409, message: "Cette tâche existe déjà" });
+            } else {
+
+                const addedTask = await taskService.create(taskToAdd);
+
+                res.location(`api/task/${addedTask.id}`);
+                res.status(201).json(addedTask);
+            }
 
 
+        } catch (err) {
+            console.log(err);
+            throw new Error(err);
+
+        }
+
+
+        // res.location(`/api/task/${addedTask.id}`);
+        // res.status(201).json(addedTask);
     },
 
     /**
@@ -131,26 +177,33 @@ const taskController = {
     * @param { Response } res 
     */
 
-    delete: (req, res) => {
-        const id = +req.params.id;
+    delete: async (req, res) => {
 
-        if (fakeTaskService.delete(id)) {
-            res.sendStatus(204);
-        }
-        else {
-            res.status(404).json({ statusCode: 404, message: 'Suppression impossible la tâche n\' existe pas' });
+        const id = req.params.id;
 
+        try {
+            const count = await Task.countDocuments();
+            if(count === 0){
+                res.status(409).json({ statusCode : 409, message : 'Il n\'y a plus de tâches dans la db'})
+            }
+            
+            const deletedTask = await taskService.delete(id);
+            if (deletedTask) {
 
+                res.sendStatus(204);
+            }
+            else {
+                res.status(404).json({ statusCode: 404, message: 'Suppression impossible la tâche n\' existe pas' });
 
+            }
+        } catch (err) {
+            res.sendStatus(500);
 
         }
 
     }
 
-
 }
-
-
 
 
 

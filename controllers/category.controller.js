@@ -1,6 +1,6 @@
 //Dans le controller on va faire l'appel des fonctions et ensuite se charger 
 // d'envoyer des erreurs 
-const {Request, Response} = require('express');
+const { Request, Response } = require('express');
 
 const fakeCategoryService = require('../services/fake/fakeCategory.service');
 
@@ -17,23 +17,23 @@ const categoryController = {
      */
 
 
-    getAll : async(req, res) => {
+    getAll: async (req, res) => {
 
-        try{
+        try {
             const categories = await categoryService.find();
 
             res.status(200).json(categories);
-            
+
         }
-        catch(err) {
+        catch (err) {
 
             console.log(err);
-            res.status(500).json({ statusCode : 500 , message : "Erreur avec la DB"})
-            
+            res.status(500).json({ statusCode: 500, message: "Erreur avec la DB" })
+
         }
 
         const dataToSend = {
-            count : categories.length,
+            count: categories.length,
             categories
         };
         res.status(200).json(dataToSend);
@@ -45,23 +45,24 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    getById : async(req, res) => {
+    getById: async (req, res) => {
         const id = req.params.id;
 
-        try{
+        try {
             const category = await categoryService.findById(id);
 
-        if(!category){
-            res.status(404).json({
-                                    statusCode : 404,
-                                    message : "Tâche non trouvée"} )
-        }
+            if (!category) {
+                res.status(404).json({
+                    statusCode: 404,
+                    message: "Tâche non trouvée"
+                })
+            }
 
-        res.status(200).json(category);
-    }catch(err) {
-        console.log(err);
-        throw new Error(err);
-    }
+            res.status(200).json(category);
+        } catch (err) {
+            console.log(err);
+            throw new Error(err);
+        }
     },
 
 
@@ -71,28 +72,31 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    insert : async (req, res) => {
+    insert: async (req, res) => {
         const categoryToAdd = req.body;
 
         try {
 
             const exists = await categoryService.alreadyExists(categoryToAdd.name);
 
-            if ( exists ) {
+            if (exists) {
                 res.status(409).json({ statusCode: 409, message: 'La catégorie existe déjà' })
+            }
+            else {
+                const addedCategory = await categoryService.create(categoryToAdd);
+
+                res.location(`/api/category/${addedCategory.id}`);
+                res.status(201).json(addedCategory);
+
             }
 
         } catch (err) {
             console.log(err);
-            throw new Error(err);    
+            throw new Error(err);
         }
-        
-        const addedCategory = fakeCategoryService.create(categoryToAdd);
 
-        
 
-        res.location(`/api/category/${addedCategory.id}`);
-        res.status(201).json(addedCategory);
+
     },
 
 
@@ -102,7 +106,7 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    update : (req, res) => {
+    update: (req, res) => {
         res.sendStatus(501)
     },
 
@@ -113,7 +117,7 @@ const categoryController = {
      * @param { Response } res 
      */
 
-    delete : (req, res) => {
+    delete: (req, res) => {
         res.sendStatus(501)
     }
 
