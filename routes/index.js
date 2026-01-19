@@ -7,12 +7,15 @@ res.send("Bienvenue sur notre API de gestion de tâches", 200)
 });
 
 const productRouter = require('./product.router');
-router.use('/products', productRouter)
+router.use('/products', productRouter);
 
 const taskRouter = require('./task.router');
-router.use('/tasks', taskRouter)
+router.use('/tasks', taskRouter);
 
 const categoryRouter = require('./category.router');
-router.use('/categories', categoryRouter)
+router.use('/categories', categoryRouter);
+
+const authRouter = require('./auth.router');
+router.use('/auth', authRouter);
 
 module.exports = router;

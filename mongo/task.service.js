@@ -4,7 +4,17 @@ const Task = require("../models/task.model");
 const taskService = {
     find : async () => {
         try {
-            const tasks = await Task.find();            
+            const tasks = await Task.find().populate({
+                                                        path: 'categoryId',
+                                                        select : { id : 1, name : 1, icon : 1}
+                                         }).populate({
+                                                path : 'fromUserId',
+                                                select : { id : 1, firstname : 1, lastname : 1}
+                                         }).populate({
+                                                path : 'toUserId',
+                                                select : { id : 1, firstname : 1, lastname : 1}
+                                         });
+                                        
             return tasks;
         } 
         catch (err) {
@@ -19,7 +29,16 @@ const taskService = {
 
     findById : async (id) => {
         try {
-            const searchedTask = await Task.findById(id);
+            const searchedTask = await Task.findById(id).populate({
+                                                                path: 'categoryId',
+                                                                select : { id : 1, name : 1, icon : 1}
+                                                        }).populate({
+                                                                path : 'fromUserId',
+                                                                select : { id : 1, firstname : 1, lastname : 1}
+                                                        }).populate({
+                                                                path : 'toUserId',
+                                                                select : { id : 1, firstname : 1, lastname : 1}
+                                                        });
             return searchedTask;
         } catch (err) {
             console.log(err);
