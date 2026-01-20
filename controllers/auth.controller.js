@@ -1,4 +1,5 @@
 const authService = require("../services/mongo/auth.service");
+const jwUtils = require("../utils/jwt.utils");
 
 const authController = {
     register : async (req, res) => {
@@ -35,10 +36,14 @@ const authController = {
                 res.status(401).json({ statusCode : 401, message : "Les informations de connexion ne sont pas bonne"})
                 
             } else {
+
+                const token = await jwUtils.generate(userFound)
+
                 res.status(200).json({
                                         id : userFound._id,
                                         firstname : userFound.firstname,
-                                        lastname : userFound.lastname
+                                        lastname : userFound.lastname,
+                                        token
                                     })
             }
         } catch (err) {
