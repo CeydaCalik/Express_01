@@ -3,6 +3,7 @@ const bodyValidatorMiddleware = require('../middlewares/bodyValidator.middleware
 const { get } = require('./category.router');
 
 const authenticationMiddleware = require('../middlewares/auth/authentication.middleware');
+const userAuthorizationMiddleware = require('../middlewares/auth/userAuthorization.middleware');
 
 const taskRouter = require('express').Router();
 
@@ -16,7 +17,7 @@ taskRouter.route('/:id')
     .delete(taskController.delete)
     .patch(bodyValidatorMiddleware(), taskController.updateStatus)
     
-taskRouter.get('/user/:id', taskController.getByUser)
+taskRouter.get('/user/:id', authenticationMiddleware(), userAuthorizationMiddleware(), taskController.getByUser)
 
 
 

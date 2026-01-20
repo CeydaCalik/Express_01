@@ -1,4 +1,5 @@
-const { Request } = require('express')
+const { Request } = require('express');
+const jwUtils = require('../../utils/jwt.utils');
 
 const authenticationMiddleware = () => {
 
@@ -7,7 +8,7 @@ const authenticationMiddleware = () => {
      * 
      */
 
-    return (req, res, next) => {
+    return async(req, res, next) => {
 
         const authorization = req.headers.authorization;
         
@@ -16,14 +17,25 @@ const authenticationMiddleware = () => {
             
         }
 
-
         const token = authorization.split(' ')[1];
         if (!token) {
             res.status(401).json({ statusCode : 401, message : "Vous devez être connecté"});
-
+            
+            
         }
-
-        next();
+        
+        try {
+            
+            const playload = await jwUtils.decode(token);
+            req.user = playload;
+            next();
+        } catch (err) {
+            console.log(err);
+            
+            res.status(401).json( {statusCode : 401, message : "Vou sdeez être connecteé"});
+            
+            
+        }
 
 
         
