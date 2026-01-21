@@ -2,43 +2,67 @@ const Task = require("../models/task.model");
 
 
 const taskService = {
-    find : async () => {
+    find: async (query) => {
         try {
-            const tasks = await Task.find().populate({
-                                                        path: 'categoryId',
-                                                        select : { id : 1, name : 1, icon : 1}
-                                         }).populate({
-                                                path : 'fromUserId',
-                                                select : { id : 1, firstname : 1, lastname : 1}
-                                         }).populate({
-                                                path : 'toUserId',
-                                                select : { id : 1, firstname : 1, lastname : 1}
-                                         });
-                                        
+
+            const { isDone, categoryId } = query;
+
+            let isDoneFilter;
+
+            if (isDone === undefined) {
+                isDoneFilter = {};
+            }else {
+                isDoneFilter = { isDone};
+            }
+
+            let categoryFilter;
+
+            if (!categoryId) {
+
+                categoryFilter = {};
+
+            }else if( Array.isArray(categoryId) ){
+                categoryFilter = { categoryId : { $in : categoryId} };
+
+            }else {
+                categoryFilter = { categoryId };
+            }
+
+            const tasks = await Task.find( isDoneFilter).and( categoryFilter ).populate({
+                path: 'categoryId',
+                select: { id: 1, name: 1, icon: 1 }
+            }).populate({
+                path: 'fromUserId',
+                select: { id: 1, firstname: 1, lastname: 1 }
+            }).populate({
+                path: 'toUserId',
+                select: { id: 1, firstname: 1, lastname: 1 }
+            });
+
             return tasks;
-        } 
+        }
         catch (err) {
             console.log(err);
 
             throw new Error(err);
-            
-            
-            
+
+
+
         }
     },
 
-    findById : async (id) => {
+    findById: async (id) => {
         try {
             const searchedTask = await Task.findById(id).populate({
-                                                                path: 'categoryId',
-                                                                select : { id : 1, name : 1, icon : 1}
-                                                        }).populate({
-                                                                path : 'fromUserId',
-                                                                select : { id : 1, firstname : 1, lastname : 1}
-                                                        }).populate({
-                                                                path : 'toUserId',
-                                                                select : { id : 1, firstname : 1, lastname : 1}
-                                                        });
+                path: 'categoryId',
+                select: { id: 1, name: 1, icon: 1 }
+            }).populate({
+                path: 'fromUserId',
+                select: { id: 1, firstname: 1, lastname: 1 }
+            }).populate({
+                path: 'toUserId',
+                select: { id: 1, firstname: 1, lastname: 1 }
+            });
             return searchedTask;
         } catch (err) {
             console.log(err);
@@ -47,11 +71,11 @@ const taskService = {
 
     },
 
-    findByUserTo : async (userId) => {
+    findByUserTo: async (userId) => {
         try {
-            const searchedUserId = await Task.find({ toUserId : userId});
+            const searchedUserId = await Task.find({ toUserId: userId });
             return searchedUserId;
-        
+
         } catch (err) {
             console.log(err);
             throw new Error(err);
@@ -59,11 +83,11 @@ const taskService = {
 
     },
 
-    findByUserBy : async (userId) => {
+    findByUserBy: async (userId) => {
         try {
-            const searchedUserId = await Task.find({ fromUserId : userId});
+            const searchedUserId = await Task.find({ fromUserId: userId });
             return searchedUserId;
-        
+
         } catch (err) {
             console.log(err);
             throw new Error(err);
@@ -71,35 +95,35 @@ const taskService = {
 
     },
 
-    create : async (task) => {
+    create: async (task) => {
         try {
             const taskToAdd = Task(task);
 
             await taskToAdd.save();
 
             return taskToAdd;
-            
+
         } catch (err) {
             console.log(err);
 
-            
-            
+
+
         }
 
     },
-    alreadyExists : () => {},
+    alreadyExists: () => { },
 
-    delete : async (id) => {
+    delete: async (id) => {
 
         try {
-           
+
             const deleteTask = await Task.findByIdAndDelete(id);
             return deleteTask;
-                
+
         } catch (err) {
             console.log(err);
             throw new Error(err);
-            
+
         }
     }
 

@@ -1,4 +1,4 @@
-const { Request, Response } = require('express')
+const { Request, Response } = require('express');
 
 const fakeTaskService = require("../services/fake/fakeTask.service");
 
@@ -16,8 +16,11 @@ const taskController = {
      */
 
     getAll: async (req, res) => {
+        const query = req.query;
+
+
         try {
-            const tasks = await taskService.find();
+            const tasks = await taskService.find(query);
             const dataToSend = {
                 count: tasks.length,
                 tasks /*revient à écrire tasks : tasks*/
@@ -183,10 +186,10 @@ const taskController = {
 
         try {
             const count = await Task.countDocuments();
-            if(count === 0){
-                res.status(409).json({ statusCode : 409, message : 'Il n\'y a plus de tâches dans la db'})
+            if (count === 0) {
+                res.status(409).json({ statusCode: 409, message: 'Il n\'y a plus de tâches dans la db' })
             }
-            
+
             const deletedTask = await taskService.delete(id);
             if (deletedTask) {
 
